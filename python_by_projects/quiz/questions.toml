@@ -1,9 +1,25 @@
-    # questions.toml
+# questions.toml
+[[questions]]
+pregunta = "Que tipo de dominio separa una VLAN"
+respuesta = "broadcast"
+opciones = ["colision", "multicast", "unicast"]
 
-    "Que tipo de dominio separa una VLAN" = ["broadcast", "colision" , "multicast", "unicast"]
+[[questions]]
+pregunta = "Que direccionamiento es utilizado en la capa 3 del modelo OSI"
+respuesta = "ip"
+opciones = ["mac-address", "netbios", "serial"]
 
-    "Que direccionamiento es utilizado en la capa 3 del modelo OSI" = ["ip","mac-address", "netbios", "serial"]
+[[questions]]
+pregunta = "Que dispositivo communta tramas y separa dominios de colision"
+respuesta = "switch"
+opciones = ["router", "hub", "firewall"]
 
-    "Que dispositivo communta tramas y separa dominios de colision" = ["switch", "router", "hub", "firewall"]
+[[questions]]
+pregunta = "Que tipo de direccionamiento es utilizado la capa 2"
+respuesta = "mac-address"
+opciones = ["ip", "ipx", "tcp"]
     
-    "Que tipo de direccionamiento es utilizado la capa 2" = ["mac-address", "ip", "ipx", "tcp"]
+[[questions]]
+pregunta = "Que protocolo de transmission de datos es confiable"
+respuesta = "tcp"
+opciones = ["udp", "rtp", "tftp"] 
