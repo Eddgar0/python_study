@@ -1,25 +1,30 @@
 # questions.toml
 [[questions]]
 pregunta = "Que tipo de dominio separa una VLAN"
-respuesta = "broadcast"
+respuestas = ["broadcast"]
 opciones = ["colision", "multicast", "unicast"]
 
 [[questions]]
 pregunta = "Que direccionamiento es utilizado en la capa 3 del modelo OSI"
-respuesta = "ip"
+respuestas = ["ip"]
 opciones = ["mac-address", "netbios", "serial"]
 
 [[questions]]
 pregunta = "Que dispositivo communta tramas y separa dominios de colision"
-respuesta = "switch"
+respuestas = ["switch"]
 opciones = ["router", "hub", "firewall"]
 
 [[questions]]
 pregunta = "Que tipo de direccionamiento es utilizado la capa 2"
-respuesta = "mac-address"
+respuestas = ["mac-address"]
 opciones = ["ip", "ipx", "tcp"]
     
 [[questions]]
 pregunta = "Que protocolo de transmission de datos es confiable"
-respuesta = "tcp"
+respuestas = ["tcp"]
 opciones = ["udp", "rtp", "tftp"] 
+
+[[questions]]
+pregunta = "Cuales son los dos protocolos que estan en la capa de transporte (elige 2)"
+respuestas = ["tcp", "udp"]
+opciones = ["ip", "dns", "tftp"] 

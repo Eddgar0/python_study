@@ -18,30 +18,42 @@ def prepara_preguntas(path, num_preguntas):
     return random.sample(list(preguntas), k=num_preguntas)
 
 
-def obten_respuesta(pregunta, opciones):
+def obten_respuesta(pregunta, opciones, num_opciones=1):
     print(f'¿{pregunta}?')
 
     opciones_etiquetadas = dict(zip(ascii_lowercase, opciones))
     for etiqueta, opcion in opciones_etiquetadas.items():
         print(f'  {etiqueta})  {opcion}')
     
-    while (respuesta_etiqueta := input(f'\nrespuesta? ')) not in opciones_etiquetadas:
-        print(f'Por seleccione una de las respuestas de {", ".join(opciones_etiquetadas)}')
-        
-    return opciones_etiquetadas[respuesta_etiqueta]
+    while True:
+        plural_s = '' if num_opciones == 1 else f's (selecciona {num_opciones})'
+        respuesta = input(f'\nrespuesta{plural_s}: ')
+        respuestas = set(respuesta.replace(',', ' ').split())
 
+        # Maneja las respuestas invalidas
+        if len(respuestas) != num_opciones:
+            plural_s = "" if num_opciones == 1 else 's, separados por coma'
+            print(f'Por favor responda {num_opciones} alternativa{plural_s}')
+            continue
+        
+        if any((invalid := respuesta) not in opciones_etiquetadas for respuesta in respuestas):
+            print(f'{invalid!r} no es una seleccion valida. ', f'Por favor utilice {", ".join(opciones_etiquetadas)}')
+            continue
+        
+        return [opciones_etiquetadas[respuesta] for respuesta in respuestas]
 
 def haz_pregunta(pregunta):
-    respuesta_correcta = pregunta['respuesta']
-    opciones = [pregunta['respuesta']] + pregunta['opciones']
+    respuestas_correctas = pregunta['respuestas']
+    opciones = pregunta['respuestas'] + pregunta['opciones']
     opciones_ordenadas = random.sample(opciones, k=len(opciones))
-    respuesta = obten_respuesta(pregunta['pregunta'], opciones_ordenadas)
+    respuestas = obten_respuesta(pregunta['pregunta'], opciones_ordenadas, num_opciones=len(respuestas_correctas))
 
-    if respuesta == respuesta_correcta:
+    if set(respuestas) == set(respuestas_correctas):
         print('⭐ Correcto! ⭐')
         return 1
     else:
-        print(f'{respuesta} no es la repuesta, la respuesta es {respuesta_correcta}')
+        is_or_are = ' es' if len(respuestas_correctas) == 1 else 's son'
+        print(f'\n- '.join([f'No, la respuesta{is_or_are}:'] + respuestas_correctas))
         return 0
 
 
