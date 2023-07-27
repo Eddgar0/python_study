@@ -1,0 +1,14 @@
+Comida
+Frutas
+pescados
+
+         
+# comentario
+refrescos
+Jugos
+
+
+Mangos
+    
+    pilas
+    frituras
