@@ -1,6 +1,7 @@
 # quiz.py Refactored
 from string import ascii_lowercase
 import random
+import toml 
 NUM_PREGUNTAS_QUIZ = 5
 PREGUNTAS = {
     'Que tipo de dominio separa una VLAN': ['broadcast', 'colision' , 'multicast', 'unicast'],
