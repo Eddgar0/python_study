@@ -18,10 +18,13 @@ def prepara_preguntas(path, num_preguntas):
     return random.sample(list(preguntas), k=num_preguntas)
 
 
-def obten_respuesta(pregunta, opciones, num_opciones=1):
+def obten_respuesta(pregunta, opciones, num_opciones=1, pista=None):
     print(f'¿{pregunta}?')
 
     opciones_etiquetadas = dict(zip(ascii_lowercase, opciones))
+    if pista:
+        opciones_etiquetadas['?'] = 'pista'
+
     for etiqueta, opcion in opciones_etiquetadas.items():
         print(f'  {etiqueta})  {opcion}')
     
@@ -29,6 +32,11 @@ def obten_respuesta(pregunta, opciones, num_opciones=1):
         plural_s = '' if num_opciones == 1 else f's (selecciona {num_opciones})'
         respuesta = input(f'\nrespuesta{plural_s}: ')
         respuestas = set(respuesta.replace(',', ' ').split())
+
+        # Maneja las pistas
+        if pista and '?' in respuestas:
+            print(f'/nPista: {pista}')
+            continue
 
         # Maneja las respuestas invalidas
         if len(respuestas) != num_opciones:
@@ -46,7 +54,11 @@ def haz_pregunta(pregunta):
     respuestas_correctas = pregunta['respuestas']
     opciones = pregunta['respuestas'] + pregunta['opciones']
     opciones_ordenadas = random.sample(opciones, k=len(opciones))
-    respuestas = obten_respuesta(pregunta['pregunta'], opciones_ordenadas, num_opciones=len(respuestas_correctas))
+    respuestas = obten_respuesta(pregunta['pregunta'],
+                                 opciones_ordenadas, 
+                                 num_opciones=len(respuestas_correctas),
+                                 pista = pregunta.get('pista')
+                                 )
 
     if set(respuestas) == set(respuestas_correctas):
         print('⭐ Correcto! ⭐')

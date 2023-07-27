@@ -13,16 +13,19 @@ opciones = ["mac-address", "netbios", "serial"]
 pregunta = "Que dispositivo communta tramas y separa dominios de colision"
 respuestas = ["switch"]
 opciones = ["router", "hub", "firewall"]
+pista = "Un dispositivo de capa 2"
 
 [[questions]]
 pregunta = "Que tipo de direccionamiento es utilizado la capa 2"
 respuestas = ["mac-address"]
 opciones = ["ip", "ipx", "tcp"]
+pista = "Biene embedido en la tarjeta de red fisica"
     
 [[questions]]
 pregunta = "Que protocolo de transmission de datos es confiable"
 respuestas = ["tcp"]
 opciones = ["udp", "rtp", "tftp"] 
+pista = "3 way Handshake"
 
 [[questions]]
 pregunta = "Cuales son los dos protocolos que estan en la capa de transporte (elige 2)"
