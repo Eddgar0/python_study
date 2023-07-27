@@ -1,0 +1,9 @@
+    # questions.toml
+
+    "Que tipo de dominio separa una VLAN" = ["broadcast", "colision" , "multicast", "unicast"]
+
+    "Que direccionamiento es utilizado en la capa 3 del modelo OSI" = ["ip","mac-address", "netbios", "serial"]
+
+    "Que dispositivo communta tramas y separa dominios de colision" = ["switch", "router", "hub", "firewall"]
+    
+    "Que tipo de direccionamiento es utilizado la capa 2" = ["mac-address", "ip", "ipx", "tcp"]

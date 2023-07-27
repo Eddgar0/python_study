@@ -1,15 +1,16 @@
 # quiz.py Refactored
 from string import ascii_lowercase
 import random
-import toml 
-NUM_PREGUNTAS_QUIZ = 5
-PREGUNTAS = {
-    'Que tipo de dominio separa una VLAN': ['broadcast', 'colision' , 'multicast', 'unicast'],
-    'Que direccionamiento es utilizado en la capa 3 del modelo OSI': ['ip','mac-address', 'netbios', 'serial'],
-    'Que dispositivo communta tramas y separa dominios de colision': ['switch', 'router', 'hub', 'firewall'],
-    'Que tipo de direccionamiento es utilizado la capa 2': ['mac-address', 'ip', 'ipx', 'tcp']
+import pathlib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 
-}
+
+NUM_PREGUNTAS_QUIZ = 5
+PREGUNTAS_PATH = pathlib.Path(__file__).parent / 'questions.toml'
+PREGUNTAS = tomllib.loads(PREGUNTAS_PATH.read_text())
 
 def prepara_preguntas(preguntas, num_preguntas):
     num_preguntas = min(num_preguntas, len(preguntas))
