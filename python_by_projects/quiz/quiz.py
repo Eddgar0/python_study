@@ -35,7 +35,7 @@ def obten_respuesta(pregunta, opciones, num_opciones=1, pista=None):
 
         # Maneja las pistas
         if pista and '?' in respuestas:
-            print(f'/nPista: {pista}')
+            print(f'\nPista: {pista}')
             continue
 
         # Maneja las respuestas invalidas
@@ -60,14 +60,16 @@ def haz_pregunta(pregunta):
                                  pista = pregunta.get('pista')
                                  )
 
-    if set(respuestas) == set(respuestas_correctas):
+    if correcto := (set(respuestas) == set(respuestas_correctas)):
         print('⭐ Correcto! ⭐')
-        return 1
     else:
         is_or_are = ' es' if len(respuestas_correctas) == 1 else 's son'
         print(f'\n- '.join([f'No, la respuesta{is_or_are}:'] + respuestas_correctas))
-        return 0
+    
+    if 'explicacion' in pregunta:
+        print(f'\nEXPLICACION:\n{pregunta["explicacion"]}')
 
+    return 1 if correcto else 0 
 
 def run_quiz():
     preguntas = prepara_preguntas(PREGUNTAS_PATH, num_preguntas=NUM_PREGUNTAS_QUIZ)
