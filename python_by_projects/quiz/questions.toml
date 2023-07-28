@@ -1,5 +1,8 @@
 # questions.toml
-[[questions]]
+[redes]
+label = "redes"
+
+[[redes.questions]]
 pregunta = "Que tipo de dominio separa una VLAN"
 respuestas = ["broadcast"]
 opciones = ["colision", "multicast", "unicast"]
@@ -9,27 +12,27 @@ explicacion = '''
     para interconectarlas.
 '''
 
-[[questions]]
+[[redes.questions]]
 pregunta = "Que direccionamiento es utilizado en la capa 3 del modelo OSI"
 respuestas = ["ip"]
 opciones = ["mac-address", "netbios", "serial"]
 
 
-[[questions]]
+[[redes.questions]]
 pregunta = "Que dispositivo communta tramas y separa dominios de colision"
 respuestas = ["switch"]
 opciones = ["router", "hub", "firewall"]
 pista = "Un dispositivo de capa 2"
 
 
-[[questions]]
+[[redes.questions]]
 pregunta = "Que tipo de direccionamiento es utilizado la capa 2"
 respuestas = ["mac-address"]
 opciones = ["ip", "ipx", "tcp"]
 pista = "Viene embedido en la tarjeta de red fisica"
 
     
-[[questions]]
+[[redes.questions]]
 pregunta = "Que protocolo de transmission de datos es confiable"
 respuestas = ["tcp"]
 opciones = ["udp", "rtp", "tftp"] 
@@ -39,10 +42,41 @@ explicacion = '''
    UDP es el best effort 
 '''
 
-[[questions]]
+[[redes.questions]]
 pregunta = "Cuales son los dos protocolos que estan en la capa de transporte (elige 2)"
 respuestas = ["tcp", "udp"]
 opciones = ["ip", "dns", "tftp"]
 explicacion = '''
     TCP y UDP estan en la capa de transporte del modelo OSI y TCP/IP 
+''' 
+
+[seguridad]
+label = "seguridad"
+
+[[segurida.questions]]
+pregunta = "De los siguientes cuales no es un ejemplo de amenaza"
+respuestas = ["Un computador con informacion sensitiva"]
+
+opciones = [
+    "Un desastre natural como huracan", 
+    "Un usuario intentando entrar a los servidores", 
+    "Un correo maliciso pidiendo informacion sensitiva"
+    ]
+explicacion = '''
+    Un computador con informacion sensitiva no es una amenaza
+    mas bien un riesgo 
+''' 
+
+[[segurida.questions]]
+pregunta = "Dispositivo donde se aplican politicas de accesos a la red a traves del bloqueo de puertos"
+respuestas = ["firewall"]
+opciones = ["router", "switch", "proxy"]
+pista = "Las politicas de la red" 
+
+[[segurida.questions]]
+pregunta = "Equipo que collecta logs y analiza comportamientos maliciosos"
+respuestas = ["siem"]
+opciones = ["Firewall", "IDS", "Proxy"]
+explicacion = '''
+    El siem collecta logs 
 ''' 
