@@ -13,6 +13,9 @@ PREGUNTAS_PATH = pathlib.Path(__file__).parent / 'questions.toml'
 PREGUNTAS = tomllib.loads(PREGUNTAS_PATH.read_text())
 
 def prepara_preguntas(path, num_preguntas):
+    topic_info = tomllib.loads(path.read_text())
+    topics = {topic['label']: topic['question'] for topic in topic_info}
+    
     preguntas = tomllib.loads(path.read_text())['questions']
     num_preguntas = min(num_preguntas, len(preguntas))
     return random.sample(list(preguntas), k=num_preguntas)
