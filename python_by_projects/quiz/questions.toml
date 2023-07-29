@@ -53,7 +53,7 @@ explicacion = '''
 [seguridad]
 label = "seguridad"
 
-[[segurida.questions]]
+[[seguridad.questions]]
 pregunta = "De los siguientes cuales no es un ejemplo de amenaza"
 respuestas = ["Un computador con informacion sensitiva"]
 
@@ -67,13 +67,13 @@ explicacion = '''
     mas bien un riesgo 
 ''' 
 
-[[segurida.questions]]
+[[seguridad.questions]]
 pregunta = "Dispositivo donde se aplican politicas de accesos a la red a traves del bloqueo de puertos"
 respuestas = ["firewall"]
 opciones = ["router", "switch", "proxy"]
 pista = "Las politicas de la red" 
 
-[[segurida.questions]]
+[[seguridad.questions]]
 pregunta = "Equipo que collecta logs y analiza comportamientos maliciosos"
 respuestas = ["siem"]
 opciones = ["Firewall", "IDS", "Proxy"]

@@ -14,11 +14,17 @@ PREGUNTAS = tomllib.loads(PREGUNTAS_PATH.read_text())
 
 def prepara_preguntas(path, num_preguntas):
     topic_info = tomllib.loads(path.read_text())
-    topics = {topic['label']: topic['question'] for topic in topic_info}
+    print(topic_info.values())
+    topics = {topic['label']: topic['questions'] for topic in topic_info.values()}
+
+    topic_label = obten_respuesta(
+        pregunta = 'Que tema quiere el Quiz',
+        opciones = sorted(topics),
+    )[0]
     
-    preguntas = tomllib.loads(path.read_text())['questions']
+    preguntas = topics[topic_label]
     num_preguntas = min(num_preguntas, len(preguntas))
-    return random.sample(list(preguntas), k=num_preguntas)
+    return random.sample(preguntas, k=num_preguntas)
 
 
 def obten_respuesta(pregunta, opciones, num_opciones=1, pista=None):
