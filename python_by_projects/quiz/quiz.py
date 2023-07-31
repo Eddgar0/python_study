@@ -10,11 +10,9 @@ except ModuleNotFoundError:
 
 NUM_PREGUNTAS_QUIZ = 5
 PREGUNTAS_PATH = pathlib.Path(__file__).parent / 'questions.toml'
-PREGUNTAS = tomllib.loads(PREGUNTAS_PATH.read_text())
 
 def prepara_preguntas(path, num_preguntas):
     topic_info = tomllib.loads(path.read_text())
-    print(topic_info.values())
     topics = {topic['label']: topic['questions'] for topic in topic_info.values()}
 
     topic_label = obten_respuesta(
