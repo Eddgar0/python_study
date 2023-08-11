@@ -8,34 +8,22 @@
 # The website name can only have letters and digits .
 # The extension can only contain letters .
 # The maximum length of the extension is .
-
+import re
 
 
 def fun(s):
     # return True if s is a valid email, else return False
-    splitted_mail = s.plit('@')
-
-    if len(splitted_mail) != 2:
+    pattern = re.compile(r'[A-Za-z0-9\-\_]+@[A-Za-z0-9\.]+\.[A-Za-z]{1,3}$')
+    if pattern.match(s):
+        return True
+    else:
         return False
     
-    #if 
-
-
-# verifico @ y parto por arroba si no hay exactamente 2, bobo error
-# Colocar el username aparte y analizarlo
-# colocar el dominio aparte y dividirlo de derecha a izquierda por punto 
-# Si tiene mas de 2 bobo error
-# validar 2 nivel de dominio
-# analizar el 1 nivel de dominio
-# si todos son verdaderos arroja verdadero
-
-
-    pass
 def filter_mail(emails):
     return list(filter(fun, emails))
 
 if __name__ == '__main__':
-    n = int(input())
+    n = int(input('Insterte cantidad de Mails'))
     emails = []
     for _ in range(n):
         emails.append(input())
