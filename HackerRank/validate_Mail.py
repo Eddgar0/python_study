@@ -13,17 +13,17 @@ import re
 
 def fun(s):
     # return True if s is a valid email, else return False
- matched = re.match(r'([A-Za-z0-9_\-])+@([A-Za-z0-9\.])+\.([A-Za-z]){2,3}$', s)
- if matched:
-    return True
- else:
-    return False
-
+    pattern = re.compile(r'[A-Za-z0-9\-\_]+@[A-Za-z0-9\.]+\.[A-Za-z]{1,3}$')
+    if pattern.match(s):
+        return True
+    else:
+        return False
+    
 def filter_mail(emails):
     return list(filter(fun, emails))
 
 if __name__ == '__main__':
-    n = int(input())
+    n = int(input('Insterte cantidad de Mails'))
     emails = []
     for _ in range(n):
         emails.append(input())
