@@ -18,12 +18,14 @@ def get_random_word(word_list):
     >>> get_random_word(["snake", "worm", "it'll"])
     'SNAKE'
     """
-    words = [
+    if words := [
         word.upper() for word in word_list
         if len(word) == 5 and all(letter in ascii_letters for letter in word)
-        ]
-    return random.choice(words)
-
+    ]:
+        return random.choice(words)
+    else:
+        console.print("No words of lenght 5 in the word list", style="warning")
+        raise SystemExit()
 
 def show_guesses(guesses, word):
     for guess in guesses:
@@ -54,6 +56,23 @@ def refresh_page(headline):
     console.clear()
     console.rule(f"[bold blue]:leafy_green: {headline} :leafy_green:[/]\n")
 
+def guess_word(previous_guesses):
+    guess = console.input("\nGuess: ").upper()
+    
+    if guess in previous_guesses:
+        console.print(f"You've already guessed {guess}.", style="warning")
+        return guess_word(previous_guesses)
+    
+    if len(guess) !=5:
+        console.print("Your guess must be 5 letters.", style="warning")
+        return guess_word(previous_guesses)
+    
+    if any((invalid := letter) not in ascii_letters for letter in guess):
+        console.print(f"Invalid letter: '{invalid}'. Please use English letters.", style="warning")
+        return guess_word(previous_guesses)
+    
+    return guess
+
 def main():
     # Pre-process
     words_path = pathlib.Path(__file__).parent / 'wordlist.txt' 
@@ -66,7 +85,7 @@ def main():
         show_guesses(guesses, word)
         
         
-        guesses[idx] = input(f"\nGuess {idx + 1}: ").upper()
+        guesses[idx] = guess_word(previous_guesses=guesses[:idx])
         if guessed_correctly := (guesses[idx] == word):
             break
 
