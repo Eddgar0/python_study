@@ -1,4 +1,5 @@
 # wyrdl.py
+import contextlib
 import pathlib
 import random
 from string import ascii_letters, ascii_uppercase
@@ -86,14 +87,15 @@ def main():
     guesses = ["_" * NUM_LETTERS] * NUM_GUESSES
 
     # Process (main loop)
-    for idx in range(NUM_GUESSES):
-        refresh_page(headline=f"Guess {idx +1}")
-        show_guesses(guesses, word)
-        
-        
-        guesses[idx] = guess_word(previous_guesses=guesses[:idx])
-        if guessed_correctly := (guesses[idx] == word):
-            break
+    with contextlib.suppress(KeyboardInterrupt):
+        for idx in range(NUM_GUESSES):
+            refresh_page(headline=f"Guess {idx +1}")
+            show_guesses(guesses, word)
+            
+            
+            guesses[idx] = guess_word(previous_guesses=guesses[:idx])
+            if guessed_correctly := (guesses[idx] == word):
+                break
 
     # Post-process
     game_over(guesses, word, guessed_correctly)
