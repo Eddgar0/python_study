@@ -113,7 +113,7 @@ class Task:
             return False
 
     def __str__(self):
-        return f'{self.title}: {self.description} [{self.priority}] - {self.status}'
+        return f'Task #{self.id}: {self.title} [{self.priority}] - {self.status}'
 
 
 
@@ -150,7 +150,7 @@ class BugTask(Task):
             self.severity = 'critical'
     
     def __str__(self):
-        return f'{self.title}: {self.description} [{self.priority}] - {self.severity} - Assigned to: {self.assigned_to}'
+        return f'Bug #{self.id}: {self.title} [{self.priority}] - {self.severity} - Assigned to: {self.assigned_to}'
 
 
 """
@@ -182,7 +182,7 @@ class FeatureTask(Task):
         self.estimated_hours += hours
 
     def __str__(self):
-        return f'{self.title}: {self.description} [{self.priority}] - {self.estimated_hours} hours - {self.sprint}'
+        return f'Feature #{self.id}:{self.title} [{self.priority}] - {self.estimated_hours} hours - {self.sprint}'
 
 
 # ============================================
@@ -219,11 +219,10 @@ class MemoryStorage(Storage):
         return self.saved_tasks.values()
 
     def delete(self, task_id):
-        try:
-            if self.saved_tasks.pop(task_id):
-                return True
-        except Exception:
-            return False
+        if task_id in self.saved_tasks:
+            self.saved_tasks.pop(task_id)
+            return True
+        return False
     
     def update(self, task):
         try:
@@ -267,10 +266,10 @@ class FileStorage(Storage):
         return self.saved_tasks
 
     def delete(self, task_id):
-        for i in range(len(self.saved_tasks)):
-            if self.saved_tasks[i].id == task_id:
-                self.saved_tasks.pop(i)
-                return True
+        task = self.get_by_id(task_id)
+        if task:
+            self.saved_tasks.pop(self.saved_tasks.index(task))
+            return True
         return False
     
     def update(self, task):
@@ -357,12 +356,7 @@ class TaskManager:
     def get_statistics(self):
         self.stats =  {'pending':0, 'in_progress': 0, 'completed': 0}
         for task in self.storage.get_all():
-            if task.status == 'pending':
-                self.stats['pending'] += 1
-            elif task.status == 'in_progress':
-                self.stats['in_progress'] += 1
-            elif task.status == 'completed':
-                self.stats['completed'] += 1
+            self.stats[task.status] += 1
         return self.stats
 
 # ============================================
