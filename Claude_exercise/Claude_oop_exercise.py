@@ -1,0 +1,536 @@
+# ============================================
+# EXERCISE: TASK MANAGEMENT SYSTEM
+# ============================================
+"""
+BUILD A TASK MANAGEMENT SYSTEM (Similar to Trello/Asana)
+
+You'll practice:
+- Abstract Base Classes
+- Inheritance
+- Encapsulation
+- Polymorphism
+
+DIFFICULTY: Intermediate
+TIME: 30-45 minutes
+"""
+
+from abc import ABC, abstractmethod
+from datetime import datetime
+
+# ============================================
+# PART 1: CREATE THE BASE STORAGE INTERFACE
+# ============================================
+
+"""
+TODO: Create an abstract class called 'Storage' that defines
+how to save and retrieve tasks.
+
+Requirements:
+- Abstract method: save(task) -> bool
+- Abstract method: get_by_id(task_id) -> Task or None
+- Abstract method: get_all() -> list of Tasks
+- Abstract method: delete(task_id) -> bool
+- Abstract method: update(task) -> bool
+"""
+
+class Storage(ABC):
+
+    @abstractmethod
+    def save(self, task):
+        pass
+    
+    @abstractmethod
+    def get_by_id(self, task_Id):
+        pass
+    
+    @abstractmethod
+    def get_all(self):
+        pass
+    
+    @abstractmethod
+    def delete(self, task_Id):
+        pass
+
+    @abstractmethod
+    def update(self, task):
+        pass
+
+
+# ============================================
+# PART 2: CREATE TASK CLASSES
+# ============================================
+
+"""
+TODO: Create a base Task class with these features:
+
+Attributes:
+- id (string)
+- title (string)
+- description (string)
+- created_at (datetime)
+- status (string: 'pending', 'in_progress', 'completed')
+- priority (string: 'low', 'medium', 'high')
+
+Methods:
+- __init__(title, description, priority='medium')
+- mark_in_progress() - change status to 'in_progress'
+- mark_completed() - change status to 'completed'
+- update_priority(new_priority) - update priority (validate input)
+- is_completed() - return True if status is 'completed'
+- __str__() - return a nice string representation
+
+Example string representation: "Task #1: Fix login [high] - pending"
+"""
+
+class Task:
+    # YOUR CODE HERE 
+    _id_counter = 0
+    def __init__(self, title, description, priority='medium'):
+        Task._id_counter += 1
+        self.id = str(self._id_counter)
+        self.title = title
+        self.description = description
+        self.priority = priority
+        self.status = 'pending'
+        self.created_at = datetime.today()
+
+    def mark_in_progress(self):
+        self.status = 'in_progress'
+    
+    def mark_completed(self):
+        self.status = 'completed'
+
+    def update_priority(self, new_priority):
+        if new_priority not in ('low', 'medium', 'high'):
+            raise ValueError
+        self.priority = new_priority
+        
+
+    def is_completed(self):
+        if self.status == 'completed':
+            return True
+        else:
+            return False
+
+    def __str__(self):
+        return f'{self.title}: {self.description} [{self.priority}] - {self.status}'
+
+
+
+
+"""
+TODO: Create a BugTask class that inherits from Task
+
+Additional attributes:
+- severity (string: 'minor', 'major', 'critical')
+- assigned_to (string or None)
+
+Additional methods:
+- assign_to(developer_name) - assign bug to a developer
+- escalate() - increase severity (minor->major->critical)
+- __str__() - override to include severity and assignee
+
+Example: "Bug #2: Login broken [high] - Critical - Assigned to: Alice"
+"""
+
+class BugTask(Task):
+    # YOUR CODE HERE
+    def __init__(self, title, description, priority='medium', severity='minor', assigned_to=None):
+        super().__init__(title, description, priority)
+        self.severity = severity
+        self.assigned_to = assigned_to
+
+    def assign_to(self, developer_name=None):
+        self.assigned_to = developer_name
+
+    def escalate(self):
+        if self.severity == 'minor':
+            self.severity = "major"
+        elif self.severity == 'major':
+            self.severity = 'critical'
+    
+    def __str__(self):
+        return f'{self.title}: {self.description} [{self.priority}] - {self.severity} - Assigned to: {self.assigned_to}'
+
+
+"""
+TODO: Create a FeatureTask class that inherits from Task
+
+Additional attributes:
+- estimated_hours (int)
+- sprint (string or None)
+
+Additional methods:
+- set_sprint(sprint_name) - assign to a sprint
+- add_hours(hours) - add more estimated hours
+- __str__() - override to include hours and sprint
+
+Example: "Feature #3: Dark mode [medium] - 8 hours - Sprint 5"
+"""
+
+class FeatureTask(Task):
+    # YOUR CODE HERE
+    def __init__(self, title, description, priority='medium', estimated_hours=4, sprint=None):
+        super().__init__(title, description, priority)
+        self.estimated_hours = estimated_hours
+        self.sprint = sprint
+
+    def set_sprint(self, sprint_name):
+        self.sprint = sprint_name
+
+    def add_hours(self, hours):
+        self.estimated_hours += hours
+
+    def __str__(self):
+        return f'{self.title}: {self.description} [{self.priority}] - {self.estimated_hours} hours - {self.sprint}'
+
+
+# ============================================
+# PART 3: CREATE STORAGE IMPLEMENTATIONS
+# ============================================
+
+"""
+TODO: Create a MemoryStorage class that implements Storage
+
+This should store tasks in a dictionary in memory.
+Use self.tasks = {} to store tasks with ID as key
+
+Requirements:
+- Implement all abstract methods from Storage
+- save() should store the task in the dictionary
+- get_by_id() should return the task or None if not found
+- get_all() should return a list of all tasks
+- delete() should remove the task and return True/False
+- update() should update the task and return True/False
+"""
+
+class MemoryStorage(Storage):
+    # YOUR CODE HERE
+    def __init__(self):
+        self.saved_tasks = {}
+
+    def save(self, task):
+        self.saved_tasks[task.id] = task
+    
+    def get_by_id(self, task_id):
+        return self.saved_tasks.get(task_id)
+
+    def get_all(self):
+        return self.saved_tasks.values()
+
+    def delete(self, task_id):
+        try:
+            if self.saved_tasks.pop(task_id):
+                return True
+        except Exception:
+            return False
+    
+    def update(self, task):
+        try:
+            self.saved_tasks[task.id] = task
+            return True 
+        except Exception:
+            return False
+         
+            
+
+"""
+BONUS TODO: Create a FileStorage class that implements Storage
+
+This should simulate saving tasks to a file.
+You can use a list that pretends to be file storage.
+
+Requirements:
+- Implement all abstract methods from Storage
+- Add a filename attribute in __init__
+- Simulate file operations (you don't need actual file I/O)
+- Print messages like "Saving to file: tasks.txt" to simulate
+"""
+
+class FileStorage(Storage):
+    # YOUR CODE HERE (BONUS - OPTIONAL)
+    def __init__(self):
+        self.saved_tasks = []
+
+    def save(self, task):
+        print('Writting on task.txt...')
+        self.saved_tasks.append(task) 
+    
+    def get_by_id(self, task_id):
+        print('Searching Tasks...')
+        for task in self.saved_tasks:
+            if task.id == task_id:
+                return task
+        return None
+    
+    def get_all(self):
+        return self.saved_tasks
+
+    def delete(self, task_id):
+        for i in range(len(self.saved_tasks)):
+            if self.saved_tasks[i].id == task_id:
+                self.saved_tasks.pop(i)
+                return True
+        return False
+    
+    def update(self, task):
+        for i in range(len(self.saved_tasks)):
+            if self.saved_tasks[i].id == task.id:
+                self.saved_tasks[i] = task
+                return True
+        return False
+
+# ============================================
+# PART 4: CREATE TASK MANAGER
+# ============================================
+
+"""
+TODO: Create a TaskManager class that manages all tasks
+
+The manager should:
+- Accept a Storage implementation in __init__
+- Work with ANY storage implementation (abstraction!)
+
+Methods to implement:
+  * create_task(task) -> Task
+      - Save task to storage
+      - Return the task
+  
+  * get_task(task_id) -> Task or None
+      - Get a task by ID
+  
+  * get_all_tasks() -> list
+      - Get all tasks from storage
+  
+  * get_tasks_by_status(status) -> list
+      - Filter tasks by status
+      - Example: get_tasks_by_status('pending')
+  
+  * get_high_priority_tasks() -> list
+      - Return only tasks with priority='high'
+  
+  * complete_task(task_id) -> bool
+      - Mark task as completed
+      - Update in storage
+      - Return True if successful
+  
+  * delete_task(task_id) -> bool
+      - Delete task from storage
+  
+  * get_statistics() -> dict
+      - Return counts by status
+      - Example: {'pending': 5, 'in_progress': 3, 'completed': 2}
+
+This demonstrates abstraction - TaskManager works with ANY storage!
+"""
+
+class TaskManager:
+    # YOUR CODE HERE
+    def __init__(self, storage):
+        self.storage = storage
+    
+    def create_task(self, task):
+        self.storage.save(task)
+        return task
+    
+    def get_task(self, task_id):
+        return self.storage.get_by_id(task_id)
+    
+    def get_all_tasks(self):
+        return self.storage.get_all()
+
+    def get_tasks_by_status(self, status):
+        return [ ftask for ftask in self.storage.get_all() if ftask.status == status]
+    
+    def get_high_priority_tasks(self):
+        return  [ftask for ftask in self.storage.get_all() if ftask.priority == 'high']
+    
+    def complete_task(self, task_id):
+        task = self.storage.get_by_id(task_id)
+        if task: 
+            task.mark_completed()
+            return self.storage.update(task)
+    
+    def delete_task(self, task_id):
+        return self.storage.delete(task_id)
+    
+    def get_statistics(self):
+        self.stats =  {'pending':0, 'in_progress': 0, 'completed': 0}
+        for task in self.storage.get_all():
+            if task.status == 'pending':
+                self.stats['pending'] += 1
+            elif task.status == 'in_progress':
+                self.stats['in_progress'] += 1
+            elif task.status == 'completed':
+                self.stats['completed'] += 1
+        return self.stats
+
+# ============================================
+# PART 5: TEST YOUR CODE (Manual Testing)
+# ============================================
+
+def demo():
+    """
+    Test your implementation with this demo code.
+    Uncomment and run when you're done!
+    """
+    print("="*50)
+    print("TASK MANAGEMENT SYSTEM DEMO")
+    print("="*50)
+    
+    # Create storage and manager
+    storage = MemoryStorage()
+    manager = TaskManager(storage)
+    
+    # Create different types of tasks
+    print("\n1. Creating tasks...")
+    bug = BugTask("Login button broken", "Users can't login", priority="high")
+    bug.severity = "critical"
+    bug.assign_to("Alice")
+    
+    feature = FeatureTask("Add dark mode", "Implement dark theme", priority="medium")
+    feature.estimated_hours = 8
+    feature.set_sprint("Sprint 5")
+    
+    regular_task = Task("Update documentation", "Update API docs")
+    
+    # Add tasks to manager
+    manager.create_task(bug)
+    manager.create_task(feature)
+    manager.create_task(regular_task)
+    
+    print(f"✓ Created {len(manager.get_all_tasks())} tasks")
+    
+    # Display all tasks
+    print("\n2. All tasks:")
+    for task in manager.get_all_tasks():
+        print(f"   {task}")
+    
+    # Show high priority tasks
+    print("\n3. High priority tasks:")
+    high_priority = manager.get_high_priority_tasks()
+    print(f"   Found {len(high_priority)} high priority task(s)")
+    for task in high_priority:
+        print(f"   {task}")
+    
+    # Complete a task
+    print("\n4. Completing bug task...")
+    manager.complete_task(bug.id)
+    print(f"   ✓ Task {bug.id} marked as completed")
+    
+    # Show tasks by status
+    print("\n5. Tasks by status:")
+    for status in ['pending', 'in_progress', 'completed']:
+        tasks = manager.get_tasks_by_status(status)
+        print(f"   {status}: {len(tasks)} task(s)")
+    
+    # Get statistics
+    print("\n6. Statistics:")
+    stats = manager.get_statistics()
+    for status, count in stats.items():
+        print(f"   {status}: {count}")
+    
+    # Test bug escalation
+    print("\n7. Testing bug escalation...")
+    new_bug = BugTask("Memory leak", "App crashes after 1 hour", priority="medium")
+    new_bug.severity = "minor"
+    manager.create_task(new_bug)
+    print(f"   Before: {new_bug}")
+    new_bug.escalate()
+    print(f"   After escalate: {new_bug}")
+    
+    # Test feature hours
+    print("\n8. Testing feature hours...")
+    print(f"   Before: {feature.estimated_hours} hours")
+    feature.add_hours(4)
+    print(f"   After adding 4 hours: {feature.estimated_hours} hours")
+    
+    print("\n" + "="*50)
+    print("DEMO COMPLETE!")
+    print("="*50)
+
+
+# ============================================
+# HINTS AND TIPS
+# ============================================
+
+"""
+GETTING STARTED:
+
+1. Start with the Storage abstract class:
+   - Import ABC and abstractmethod
+   - Define the 5 abstract methods
+   
+2. Then implement Task:
+   - Use a class variable for ID counter: _id_counter = 1
+   - In __init__, increment the counter for each new task
+   - Validate priority in update_priority()
+   
+3. Implement BugTask and FeatureTask:
+   - Call super().__init__() first
+   - Add your additional attributes
+   - Override __str__() to include new info
+   
+4. Implement MemoryStorage:
+   - self.tasks = {} in __init__
+   - For save: self.tasks[task.id] = task
+   - For get_by_id: return self.tasks.get(task_id)
+   
+5. Implement TaskManager:
+   - Store the storage: self.storage = storage
+   - For filtering, use list comprehension:
+     [task for task in self.get_all_tasks() if task.status == status]
+
+
+VALIDATION TIPS:
+
+Priority validation:
+    valid_priorities = ['low', 'medium', 'high']
+    if new_priority not in valid_priorities:
+        raise ValueError(f"Priority must be one of {valid_priorities}")
+
+Severity validation:
+    valid_severities = ['minor', 'major', 'critical']
+
+
+COMMON MISTAKES TO AVOID:
+
+❌ Forgetting to call super().__init__() in child classes
+✅ Always call parent constructor first
+
+❌ Not implementing ALL abstract methods
+✅ Every abstract method must be implemented
+
+❌ Not updating storage after changing a task
+✅ Call storage.update() after modifying a task
+
+❌ Hardcoding storage in TaskManager
+✅ Accept storage as a parameter (abstraction!)
+
+
+TESTING YOUR CODE:
+
+1. Uncomment the demo() function call at the bottom
+2. Run: python your_file.py
+3. You should see output showing all features working
+4. If you get errors, read them carefully - they tell you what's wrong!
+
+
+WHEN YOU'RE DONE:
+
+✓ All classes implemented
+✓ demo() runs without errors
+✓ Output makes sense
+✓ Ready to show me your solution!
+"""
+
+# ============================================
+# RUN THE DEMO
+# ============================================
+
+if __name__ == '__main__':
+    # Uncomment this when you're ready to test:
+    demo()
+    
+    print("Exercise ready! Implement the classes above, then uncomment demo() to test.")
+    print("Good luck! 🚀")
