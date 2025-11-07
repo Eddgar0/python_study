@@ -128,6 +128,33 @@ class Task:
             
     def __str__(self):
         return f'Task #{self.id}: {self.title} [{self.priority}] - {self.status}'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'priority': self.priority,
+            'status': self.status,
+            'created_at': self.created_at.isoformat(),
+            'due_date': self.due_date.isoformat() if self.due_date else None,
+            'depends_on': self.depends_on,
+            'type': 'Task'
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        task = cls(
+            title=data['title'],
+            description=data['description'],
+            priority=data['priority'],
+            due_date=data.get('due_date')
+        )
+        task.id = data['id'],
+        task.status = data['status'],
+        task.created_at = dt_date.fromisoformat(data['created_at']),
+        task.depends_on = data.get('depends_on', [])
+        return task
 
 
 
@@ -165,6 +192,29 @@ class BugTask(Task):
     
     def __str__(self):
         return f'Bug #{self.id}: {self.title} [{self.priority}] - {self.severity} - Assigned to: {self.assigned_to}'
+    
+    def to_dict(self):
+        data = super().to_dict()
+        data['severity'] = self.severity
+        data['assigned_to'] = self.assigned_to
+        data['type'] = 'BugTask'
+        return data
+    
+    @classmethod
+    def from_dict(cls, data):
+        bug = cls(
+            title=data['title'],
+            description=data['description'],
+            priority=data['priority'],
+            severity=data['severity'],
+            assigned_to=['assigned_to']
+        )
+        bug.id = data['id']
+        bug.status = data['status']
+        bug.status = dt_date.fromisoformat(data['created_at'])
+        bug.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
+        return bug
+    
 
 
 """
@@ -197,6 +247,22 @@ class FeatureTask(Task):
 
     def __str__(self):
         return f'Feature #{self.id}:{self.title} [{self.priority}] - {self.estimated_hours} hours - {self.sprint}'
+    
+    def to_dict(self):
+        data = super().to_dict()
+        data['estimated_hours'] = self.estimated_hours
+        data['sprint'] = self.sprint
+        data['type'] = 'FeatureTask'
+        return data
+    
+    @classmethod
+    def from_dict(cls, data):
+        task =  super().from_dict(data)
+        task.estimated_hours = data['estimated_hours']
+        task.sprint = data['sprint']
+
+        
+    
 
 
 # ============================================
