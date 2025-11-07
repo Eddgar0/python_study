@@ -15,8 +15,8 @@ TIME: 30-45 minutes
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
-
+from datetime import date as dt_date
+import json
 # ============================================
 # PART 1: CREATE THE BASE STORAGE INTERFACE
 # ============================================
@@ -85,14 +85,16 @@ Example string representation: "Task #1: Fix login [high] - pending"
 class Task:
     # YOUR CODE HERE 
     _id_counter = 0
-    def __init__(self, title, description, priority='medium'):
+    def __init__(self, title, description, priority='medium', due_date=None):
         Task._id_counter += 1
         self.id = str(self._id_counter)
         self.title = title
         self.description = description
         self.priority = priority
         self.status = 'pending'
-        self.created_at = datetime.today()
+        self.created_at = dt_date.today()
+        self.due_date = dt_date.fromisoformat(due_date) if due_date else None
+        self.depends_on = []
 
     def mark_in_progress(self):
         self.status = 'in_progress'
@@ -104,14 +106,26 @@ class Task:
         if new_priority not in ('low', 'medium', 'high'):
             raise ValueError
         self.priority = new_priority
-        
+
+    def add_dependency(self, task_id):
+        if task_id not in self.depends_on:
+            self.depends_on.append(task_id)
+
+    def remove_dependency(self, task_id):
+        if task_id in self.depends_on:
+            self.depends_on.remove(task_id)    
 
     def is_completed(self):
-        if self.status == 'completed':
-            return True
-        else:
-            return False
+        return self.status == 'completed'
+    
+    def is_overdue(self):
+        if self.due_date:
+            return dt_date.today() > self.due_date
+        return False
 
+    def has_dependency(self):
+        return len(self.depends_on) > 0
+            
     def __str__(self):
         return f'Task #{self.id}: {self.title} [{self.priority}] - {self.status}'
 
@@ -249,35 +263,41 @@ Requirements:
 class FileStorage(Storage):
     # YOUR CODE HERE (BONUS - OPTIONAL)
     def __init__(self):
-        self.saved_tasks = []
-
+        with open('db.json', 'w') as f:
+            pass
+        
+        try:
+            with open('db.json', 'r') as f:
+                self.saved_tasks = json.load(f)
+        except IOError:
+            self.saved_tasks = {}
+         
     def save(self, task):
         print('Writting on task.txt...')
-        self.saved_tasks.append(task) 
+        self.saved_tasks[task.id] = task
+        with open('db.json', 'w') as f:
+            json.dump(self.saved_tasks, f, indent=2) 
+
     
     def get_by_id(self, task_id):
-        print('Searching Tasks...')
-        for task in self.saved_tasks:
-            if task.id == task_id:
-                return task
-        return None
-    
+        return self.saved_tasks.get(task_id)
+
     def get_all(self):
-        return self.saved_tasks
+        return self.saved_tasks.values()
 
     def delete(self, task_id):
-        task = self.get_by_id(task_id)
-        if task:
-            self.saved_tasks.pop(self.saved_tasks.index(task))
+        if task_id in self.saved_tasks:
+            self.saved_tasks.pop(task_id)
             return True
         return False
     
     def update(self, task):
-        for i in range(len(self.saved_tasks)):
-            if self.saved_tasks[i].id == task.id:
-                self.saved_tasks[i] = task
-                return True
-        return False
+        try:
+            self.saved_tasks[task.id] = task
+            return True 
+        except Exception:
+            return False
+        
 
 # ============================================
 # PART 4: CREATE TASK MANAGER
@@ -344,14 +364,56 @@ class TaskManager:
     def get_high_priority_tasks(self):
         return  [ftask for ftask in self.storage.get_all() if ftask.priority == 'high']
     
+    def get_overdue_tasks(self):
+        return [ftask for ftask in self.storage.get_all() if ftask.is_overdue()]
+    
+    def get_priority_score(self, task):
+        if task.priority == 'high':
+            return 3
+        elif task.priority == 'medium':
+            return 2
+        elif task.priority == 'low':
+            return 1 
+
+    
     def complete_task(self, task_id):
-        task = self.storage.get_by_id(task_id)
-        if task: 
+        task = self.storage.get_by_id(task_id)    
+        if task and self.can_complete_task(task.id):
             task.mark_completed()
             return self.storage.update(task)
     
+    def can_complete_task(self, task_id):
+        # A task can be completed if all dependents are completed
+        task = self.get_task(task_id)
+        if not task:
+            return False
+        
+        if  not task.has_dependency():
+            return True
+        
+        for dep_task_id in task.depends_on:
+            dep_task = self.get_task(dep_task_id)
+            if dep_task and not dep_task.is_completed():
+                return False
+        
+        return True
+
+    def add_dependency(self, task_id, dep_task_id):
+        task = self.get_task(task_id)
+        dep_task = self.get_task(dep_task_id)
+
+        if task and dep_task:
+            task.add_dependency(dep_task_id)
+            self.storage.save(task)
+
+
+    
     def delete_task(self, task_id):
         return self.storage.delete(task_id)
+    
+    def get_sorted_task_priority(self):
+        tasks = self.storage.get_all()
+        return sorted(tasks, key=self.get_priority_score, reverse=True)
     
     def get_statistics(self):
         self.stats =  {'pending':0, 'in_progress': 0, 'completed': 0}
