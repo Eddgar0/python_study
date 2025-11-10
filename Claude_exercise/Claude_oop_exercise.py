@@ -17,6 +17,7 @@ TIME: 30-45 minutes
 from abc import ABC, abstractmethod
 from datetime import date as dt_date
 import json
+import os
 # ============================================
 # PART 1: CREATE THE BASE STORAGE INTERFACE
 # ============================================
@@ -147,12 +148,13 @@ class Task:
         task = cls(
             title=data['title'],
             description=data['description'],
-            priority=data['priority'],
-            due_date=data.get('due_date')
+            priority=data['priority']
+           
         )
         task.id = data['id'],
         task.status = data['status'],
         task.created_at = dt_date.fromisoformat(data['created_at']),
+        task.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
         task.depends_on = data.get('depends_on', [])
         return task
 
@@ -209,10 +211,11 @@ class BugTask(Task):
             severity=data['severity'],
             assigned_to=['assigned_to']
         )
-        bug.id = data['id']
-        bug.status = data['status']
-        bug.status = dt_date.fromisoformat(data['created_at'])
+        bug.id = data['id'],
+        bug.status = data['status'],
+        bug.created_at = dt_date.fromisoformat(data['created_at']),
         bug.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
+        bug.depends_on = data.get('depends_on', [])
         return bug
     
 
@@ -257,10 +260,19 @@ class FeatureTask(Task):
     
     @classmethod
     def from_dict(cls, data):
-        task =  super().from_dict(data)
-        task.estimated_hours = data['estimated_hours']
-        task.sprint = data['sprint']
-
+        feature = cls(
+            title=data['title'],
+            description=data['description'],
+            priority=data['priority'],
+            estimated_hours=data['estimated_hours'],
+            sprint=data['sprint']
+        )
+        feature.id = data['id'],
+        feature.status = data['status'],
+        feature.created_at = dt_date.fromisoformat(data['created_at'])
+        feature.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
+        feature.depends_on = data.get('depends_on', [])
+        return feature
         
     
 
@@ -328,22 +340,48 @@ Requirements:
 
 class FileStorage(Storage):
     # YOUR CODE HERE (BONUS - OPTIONAL)
-    def __init__(self):
-        with open('db.json', 'w') as f:
-            pass
-        
+    def __init__(self, filename='db.json'):
+        self.filename = filename
+        self.saved_task = {}
+        self._load_from_file()
+
+
+
+    def _load_from_file(self):
+        if os.path.exists(self.filename):
+            try:
+                with open('db.json', 'r') as jf:
+                    data = json.load(jf)
+                    for data_id, data_task in data.items():
+                        task_type = data_task.get('type', 'Task')
+                        if task_type == 'Task':
+                            self.saved_task[data_id] = Task.from_dict(data_task)
+                        elif task_type == 'BugTask':
+                            self.saved_task[data_id] = BugTask.from_dict(data_task)
+                        elif task_type == 'FeatureTask':
+                            self.saved_task[data_id] = FeatureTask.from_dict(data_task) 
+            except (IOError, json.JSONDecodeError) as e:
+                print('File not exist or bad json file, starting empty')
+                self.saved_task = {}
+        else:
+            print("file not found starting from new")
+            self.saved_task = {}
+
+    def _save_to_file(self):
+        tasks_plain = {}
+        for task_id, task_data in self.saved_tasks.items():
+            tasks_plain[task_id] = task_data.to_dict() 
         try:
-            with open('db.json', 'r') as f:
-                self.saved_tasks = json.load(f)
-        except IOError:
-            self.saved_tasks = {}
-         
+            with open(self.filename, 'w') as jf:
+                json.dump(tasks_plain, jf, indent=2)
+        except (IOError) as e:
+            print('could not save to a file try again later')
+
+        
     def save(self, task):
         print('Writting on task.txt...')
         self.saved_tasks[task.id] = task
-        with open('db.json', 'w') as f:
-            json.dump(self.saved_tasks, f, indent=2) 
-
+        self._save_to_file()
     
     def get_by_id(self, task_id):
         return self.saved_tasks.get(task_id)
@@ -354,16 +392,16 @@ class FileStorage(Storage):
     def delete(self, task_id):
         if task_id in self.saved_tasks:
             self.saved_tasks.pop(task_id)
+            self._save_to_file()
             return True
         return False
     
     def update(self, task):
-        try:
+        if task.id in self.saved_tasks:
             self.saved_tasks[task.id] = task
-            return True 
-        except Exception:
-            return False
-        
+            self._save_to_file()
+            return True
+        return False
 
 # ============================================
 # PART 4: CREATE TASK MANAGER
