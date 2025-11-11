@@ -1,0 +1,76 @@
+{
+  "1": {
+    "id": "1",
+    "title": "Login broken",
+    "description": "Users can't login",
+    "priority": "high",
+    "status": "pending",
+    "created_at": "2025-11-10",
+    "due_date": null,
+    "depends_on": [],
+    "type": "BugTask",
+    "severity": "critical",
+    "assigned_to": "Alice"
+  },
+  "2": {
+    "id": "2",
+    "title": "Dark mode",
+    "description": "Implement dark theme",
+    "priority": "medium",
+    "status": "pending",
+    "created_at": "2025-11-10",
+    "due_date": null,
+    "depends_on": [],
+    "type": "FeatureTask",
+    "estimated_hours": 8,
+    "sprint": "Sprint 5"
+  },
+  "3": {
+    "id": "3",
+    "title": "Security fix",
+    "description": "Fix security vulnerability",
+    "priority": "high",
+    "status": "pending",
+    "created_at": "2025-11-10",
+    "due_date": "2024-01-01",
+    "depends_on": [],
+    "type": "Task"
+  },
+  "4": {
+    "id": "4",
+    "title": "Design API",
+    "description": "Create API design",
+    "priority": "medium",
+    "status": "completed",
+    "created_at": "2025-11-10",
+    "due_date": null,
+    "depends_on": [],
+    "type": "Task"
+  },
+  "5": {
+    "id": "5",
+    "title": "Implement API",
+    "description": "Code the API",
+    "priority": "medium",
+    "status": "pending",
+    "created_at": "2025-11-10",
+    "due_date": null,
+    "depends_on": [
+      "4"
+    ],
+    "type": "Task"
+  },
+  "6": {
+    "id": "6",
+    "title": "Test API",
+    "description": "Write tests",
+    "priority": "medium",
+    "status": "pending",
+    "created_at": "2025-11-10",
+    "due_date": null,
+    "depends_on": [
+      "5"
+    ],
+    "type": "Task"
+  }
+}

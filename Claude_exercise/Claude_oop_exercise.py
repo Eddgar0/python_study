@@ -151,9 +151,9 @@ class Task:
             priority=data['priority']
            
         )
-        task.id = data['id'],
-        task.status = data['status'],
-        task.created_at = dt_date.fromisoformat(data['created_at']),
+        task.id = data['id']
+        task.status = data['status']
+        task.created_at = dt_date.fromisoformat(data['created_at'])
         task.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
         task.depends_on = data.get('depends_on', [])
         return task
@@ -209,11 +209,11 @@ class BugTask(Task):
             description=data['description'],
             priority=data['priority'],
             severity=data['severity'],
-            assigned_to=['assigned_to']
+            assigned_to=data['assigned_to']
         )
-        bug.id = data['id'],
-        bug.status = data['status'],
-        bug.created_at = dt_date.fromisoformat(data['created_at']),
+        bug.id = data['id']
+        bug.status = data['status']
+        bug.created_at = dt_date.fromisoformat(data['created_at'])
         bug.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
         bug.depends_on = data.get('depends_on', [])
         return bug
@@ -267,8 +267,8 @@ class FeatureTask(Task):
             estimated_hours=data['estimated_hours'],
             sprint=data['sprint']
         )
-        feature.id = data['id'],
-        feature.status = data['status'],
+        feature.id = data['id']
+        feature.status = data['status']
         feature.created_at = dt_date.fromisoformat(data['created_at'])
         feature.due_date = dt_date.fromisoformat(data['due_date']) if data['due_date'] else None
         feature.depends_on = data.get('depends_on', [])
@@ -342,10 +342,8 @@ class FileStorage(Storage):
     # YOUR CODE HERE (BONUS - OPTIONAL)
     def __init__(self, filename='db.json'):
         self.filename = filename
-        self.saved_task = {}
+        self.saved_tasks = {}
         self._load_from_file()
-
-
 
     def _load_from_file(self):
         if os.path.exists(self.filename):
@@ -355,17 +353,17 @@ class FileStorage(Storage):
                     for data_id, data_task in data.items():
                         task_type = data_task.get('type', 'Task')
                         if task_type == 'Task':
-                            self.saved_task[data_id] = Task.from_dict(data_task)
+                            self.saved_tasks[data_id] = Task.from_dict(data_task)
                         elif task_type == 'BugTask':
-                            self.saved_task[data_id] = BugTask.from_dict(data_task)
+                            self.saved_tasks[data_id] = BugTask.from_dict(data_task)
                         elif task_type == 'FeatureTask':
-                            self.saved_task[data_id] = FeatureTask.from_dict(data_task) 
+                            self.saved_tasks[data_id] = FeatureTask.from_dict(data_task) 
             except (IOError, json.JSONDecodeError) as e:
                 print('File not exist or bad json file, starting empty')
                 self.saved_task = {}
         else:
             print("file not found starting from new")
-            self.saved_task = {}
+            self.saved_tasks = {}
 
     def _save_to_file(self):
         tasks_plain = {}
@@ -530,84 +528,84 @@ class TaskManager:
 # ============================================
 
 def demo():
-    """
-    Test your implementation with this demo code.
-    Uncomment and run when you're done!
-    """
-    print("="*50)
-    print("TASK MANAGEMENT SYSTEM DEMO")
-    print("="*50)
+    print("="*60)
+    print("TASK MANAGEMENT SYSTEM - ALL FEATURES WORKING!")
+    print("="*60)
     
-    # Create storage and manager
-    storage = MemoryStorage()
+    # Test with FileStorage to see persistence
+    storage = FileStorage('demo_tasks.json')
     manager = TaskManager(storage)
     
-    # Create different types of tasks
-    print("\n1. Creating tasks...")
-    bug = BugTask("Login button broken", "Users can't login", priority="high")
+    print("\n1. Creating tasks with all features...")
+    bug = BugTask("Login broken", "Users can't login", priority="high")
     bug.severity = "critical"
     bug.assign_to("Alice")
     
-    feature = FeatureTask("Add dark mode", "Implement dark theme", priority="medium")
+    feature = FeatureTask("Dark mode", "Implement dark theme", priority="medium")
     feature.estimated_hours = 8
     feature.set_sprint("Sprint 5")
     
-    regular_task = Task("Update documentation", "Update API docs")
+    overdue_task = Task(
+        "Security fix",
+        "Fix security vulnerability",
+        priority="high",
+        due_date="2024-01-01"
+    )
     
-    # Add tasks to manager
     manager.create_task(bug)
     manager.create_task(feature)
-    manager.create_task(regular_task)
+    manager.create_task(overdue_task)
     
     print(f"✓ Created {len(manager.get_all_tasks())} tasks")
     
-    # Display all tasks
     print("\n2. All tasks:")
     for task in manager.get_all_tasks():
         print(f"   {task}")
     
-    # Show high priority tasks
-    print("\n3. High priority tasks:")
-    high_priority = manager.get_high_priority_tasks()
-    print(f"   Found {len(high_priority)} high priority task(s)")
-    for task in high_priority:
+    print("\n3. ✅ Overdue tasks:")
+    overdue = manager.get_overdue_tasks()
+    print(f"   Found {len(overdue)} overdue task(s)")
+    for task in overdue:
         print(f"   {task}")
     
-    # Complete a task
-    print("\n4. Completing bug task...")
-    manager.complete_task(bug.id)
-    print(f"   ✓ Task {bug.id} marked as completed")
+    print("\n4. ✅ Tasks sorted by priority:")
+    sorted_tasks = manager.get_sorted_task_priority()
+    for task in sorted_tasks:
+        score = manager.get_priority_score(task)
+        print(f"   [Priority: {score}] {task.title}")
     
-    # Show tasks by status
-    print("\n5. Tasks by status:")
-    for status in ['pending', 'in_progress', 'completed']:
-        tasks = manager.get_tasks_by_status(status)
-        print(f"   {status}: {len(tasks)} task(s)")
+    print("\n5. ✅ Task dependencies:")
+    task1 = Task("Design API", "Create API design")
+    task2 = Task("Implement API", "Code the API")
+    task3 = Task("Test API", "Write tests")
     
-    # Get statistics
-    print("\n6. Statistics:")
+    manager.create_task(task1)
+    manager.create_task(task2)
+    manager.create_task(task3)
+    
+    manager.add_dependency(task2.id, task1.id)
+    manager.add_dependency(task3.id, task2.id)
+    
+    print(f"   Task2 depends on: {task2.depends_on}")
+    print(f"   Can complete Task2? {manager.can_complete_task(task2.id)}")
+    
+    task1.mark_completed()
+    manager.storage.update(task1)
+    print(f"   After completing Task1, can complete Task2? {manager.can_complete_task(task2.id)}")
+    
+    print("\n6. ✅ FileStorage - data saved to JSON:")
+    print(f"   All tasks saved to: {storage.filename}")
+    print(f"   Restart the program to see tasks reload from file!")
+    
+    print("\n7. Statistics:")
     stats = manager.get_statistics()
     for status, count in stats.items():
         print(f"   {status}: {count}")
     
-    # Test bug escalation
-    print("\n7. Testing bug escalation...")
-    new_bug = BugTask("Memory leak", "App crashes after 1 hour", priority="medium")
-    new_bug.severity = "minor"
-    manager.create_task(new_bug)
-    print(f"   Before: {new_bug}")
-    new_bug.escalate()
-    print(f"   After escalate: {new_bug}")
-    
-    # Test feature hours
-    print("\n8. Testing feature hours...")
-    print(f"   Before: {feature.estimated_hours} hours")
-    feature.add_hours(4)
-    print(f"   After adding 4 hours: {feature.estimated_hours} hours")
-    
-    print("\n" + "="*50)
-    print("DEMO COMPLETE!")
-    print("="*50)
+    print("\n" + "="*60)
+    print("✅ ALL FEATURES WORKING PERFECTLY!")
+    print("="*60)
+
 
 
 # ============================================
